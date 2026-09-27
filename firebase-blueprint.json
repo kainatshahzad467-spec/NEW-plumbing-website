@@ -1,0 +1,65 @@
+{
+  "entities": {
+    "users": {
+      "title": "User Profile",
+      "description": "Registered customer profiles authenticated via Firebase Auth",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "email": { "type": "string" },
+        "displayName": { "type": "string" },
+        "photoURL": { "type": "string" },
+        "phone": { "type": "string" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["uid", "email"]
+    },
+    "service_requests": {
+      "title": "Service Request",
+      "description": "Bookings, emergency dispatch calls, and quote requests submitted by customers",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "bookingRef": { "type": "string" },
+        "name": { "type": "string" },
+        "phone": { "type": "string" },
+        "email": { "type": "string" },
+        "address": { "type": "string" },
+        "serviceType": { "type": "string" },
+        "urgency": { "type": "string", "enum": ["emergency", "sameday", "scheduled"] },
+        "notes": { "type": "string" },
+        "status": { "type": "string", "enum": ["pending", "confirmed", "dispatched", "completed", "cancelled"] },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["name", "phone", "serviceType", "createdAt"]
+    },
+    "notifications": {
+      "title": "Email Notification",
+      "description": "Audit records of emails dispatched to the site owner on new service request creation",
+      "type": "object",
+      "properties": {
+        "requestId": { "type": "string" },
+        "bookingRef": { "type": "string" },
+        "recipientEmail": { "type": "string" },
+        "subject": { "type": "string" },
+        "status": { "type": "string", "enum": ["sent", "failed", "simulated"] },
+        "sentAt": { "type": "string" }
+      },
+      "required": ["requestId", "recipientEmail", "subject", "status", "sentAt"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "users",
+      "description": "User profile information"
+    },
+    "/service_requests/{requestId}": {
+      "schema": "service_requests",
+      "description": "Customer service bookings and emergency dispatch requests"
+    },
+    "/notifications/{notificationId}": {
+      "schema": "notifications",
+      "description": "Notification log of dispatched site owner alert emails"
+    }
+  }
+}

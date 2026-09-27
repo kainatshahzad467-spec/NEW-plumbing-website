@@ -1,0 +1,6 @@
+{
+  "name": "Aquora Plumbing Solutions",
+  "description": "High-end commercial and residential plumbing contractor offering emergency leak repairs, drain cleaning, and pipe solutions.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
