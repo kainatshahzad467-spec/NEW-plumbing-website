@@ -32,12 +32,6 @@ export const Hero: React.FC<HeroProps> = ({
       <div className="relative z-10 max-w-5xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-24">
         {/* Core Vertical Stack with Controlled Spacing */}
         <div className="flex flex-col items-center text-center max-w-3xl mx-auto space-y-6 sm:space-y-8">
-          {/* Subtle Category Pill Badge */}
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/15 text-xs font-semibold text-emerald-400">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-            <span>24/7 Master Plumber Dispatch</span>
-          </div>
-
           {/* Bold, Compelling Headline */}
           <h1
             className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-semibold tracking-tight text-white leading-[1.12]"
