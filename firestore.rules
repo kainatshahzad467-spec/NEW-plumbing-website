@@ -37,5 +37,11 @@ service cloud.firestore {
       allow create: if isSiteOwner() || true;
       allow update, delete: if isSiteOwner();
     }
+
+    match /newsletter_subscribers/{subscriberId} {
+      // Anyone can subscribe (write lead), but only the site owner can read all collected leads
+      allow create: if true;
+      allow read, update, delete: if isSiteOwner();
+    }
   }
 }

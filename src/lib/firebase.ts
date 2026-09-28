@@ -214,3 +214,18 @@ export function subscribeToUserRequests(
     }
   );
 }
+
+/**
+ * Save newsletter subscriber to Firestore
+ */
+export async function subscribeToNewsletter(email: string, source: string = 'footer_newsletter') {
+  const subscribersCol = collection(db, 'newsletter_subscribers');
+  const now = new Date().toISOString();
+  const docRef = await addDoc(subscribersCol, {
+    email: email.trim().toLowerCase(),
+    subscribedAt: now,
+    source,
+    active: true,
+  });
+  return docRef.id;
+}

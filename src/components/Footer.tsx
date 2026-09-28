@@ -11,6 +11,7 @@ interface FooterProps {
   onOpenAbout?: () => void;
   onOpenLegal?: (type: 'privacy' | 'terms') => void;
   onOpenClientPortal?: () => void;
+  onNavigate?: (page: 'home' | 'services' | 'projects' | 'pricing' | 'about' | 'reviews' | 'contact') => void;
 }
 
 export const Footer: React.FC<FooterProps> = ({
@@ -19,6 +20,7 @@ export const Footer: React.FC<FooterProps> = ({
   onOpenAbout,
   onOpenLegal,
   onOpenClientPortal,
+  onNavigate,
 }) => {
   const { addToast } = useToast();
   const [newsletterEmail, setNewsletterEmail] = useState('');
@@ -107,10 +109,18 @@ export const Footer: React.FC<FooterProps> = ({
             <ul className="space-y-2 text-sm text-slate-300 font-normal">
               <li>
                 <button
-                  onClick={onOpenAbout}
+                  onClick={() => onNavigate ? onNavigate('about') : (onOpenAbout && onOpenAbout())}
                   className="hover:text-white transition-colors text-left cursor-pointer"
                 >
-                  Why Choose Aquora
+                  About Aquora
+                </button>
+              </li>
+              <li>
+                <button
+                  onClick={() => onNavigate && onNavigate('services')}
+                  className="hover:text-white transition-colors text-left cursor-pointer"
+                >
+                  Plumbing Services
                 </button>
               </li>
               {onOpenClientPortal && (
@@ -125,28 +135,36 @@ export const Footer: React.FC<FooterProps> = ({
                 </li>
               )}
               <li>
-                <a href="#projects" className="hover:text-white transition-colors">
-                  Recent Case Studies
-                </a>
-              </li>
-              <li>
-                <a href="#testimonials" className="hover:text-white transition-colors">
-                  Customer Video Reviews
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#pricing-estimator"
-                  onClick={onOpenEstimator}
-                  className="text-[#F95700] hover:text-[#ff6e21] transition-colors font-medium"
+                <button
+                  onClick={() => onNavigate && onNavigate('projects')}
+                  className="hover:text-white transition-colors text-left cursor-pointer"
                 >
-                  Cost Estimator Calculator
-                </a>
+                  Recent Case Studies
+                </button>
               </li>
               <li>
-                <a href="#faq" className="hover:text-white transition-colors">
-                  FAQ & Warranties
-                </a>
+                <button
+                  onClick={() => onNavigate && onNavigate('pricing')}
+                  className="text-[#F95700] hover:text-[#ff6e21] transition-colors font-medium text-left cursor-pointer"
+                >
+                  Rate Calculator
+                </button>
+              </li>
+              <li>
+                <button
+                  onClick={() => onNavigate && onNavigate('reviews')}
+                  className="hover:text-white transition-colors text-left cursor-pointer"
+                >
+                  Reviews & FAQ
+                </button>
+              </li>
+              <li>
+                <button
+                  onClick={() => onNavigate && onNavigate('contact')}
+                  className="hover:text-white transition-colors text-left cursor-pointer"
+                >
+                  Contact & Dispatch Desk
+                </button>
               </li>
             </ul>
           </div>

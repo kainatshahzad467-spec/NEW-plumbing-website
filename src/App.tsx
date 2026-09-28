@@ -1,16 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import { onAuthStateChanged, User } from 'firebase/auth';
 import { auth } from './lib/firebase';
-import { Navbar } from './components/Navbar';
-import { Hero } from './components/Hero';
-import { WhyChooseUs } from './components/WhyChooseUs';
-import { ServicesSection } from './components/ServicesSection';
-import { RecentProjects } from './components/RecentProjects';
-import { InstantEstimator } from './components/InstantEstimator';
-import { TestimonialsSection } from './components/TestimonialsSection';
-import { EmergencyBanner } from './components/EmergencyBanner';
-import { FaqSection } from './components/FaqSection';
+import { Navbar, PageRoute } from './components/Navbar';
 import { Footer } from './components/Footer';
+import { NewsletterSubscription } from './components/NewsletterSubscription';
+
+// Multi-Page Views
+import { HomePage } from './pages/HomePage';
+import { ServicesPage } from './pages/ServicesPage';
+import { ProjectsPage } from './pages/ProjectsPage';
+import { PricingPage } from './pages/PricingPage';
+import { AboutPage } from './pages/AboutPage';
+import { ReviewsFaqPage } from './pages/ReviewsFaqPage';
+import { ContactPage } from './pages/ContactPage';
+
+// Modals
 import { BookingModal, BookingInitialData } from './components/BookingModal';
 import { ClientPortalModal } from './components/ClientPortalModal';
 import { VideoModal } from './components/VideoModal';
@@ -21,6 +25,7 @@ import { PlumbingService, Project, Testimonial } from './types';
 import { ToastProvider } from './context/ToastContext';
 
 export default function App() {
+  const [currentPage, setCurrentPage] = useState<PageRoute>('home');
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [clientPortalOpen, setClientPortalOpen] = useState(false);
 
@@ -44,6 +49,27 @@ export default function App() {
     });
     return () => unsubscribe();
   }, []);
+
+  // Sync with browser history / hash if user refreshes or shares URL
+  useEffect(() => {
+    const handleHashChange = () => {
+      const hash = window.location.hash.replace('#/', '').replace('#', '');
+      const validPages: PageRoute[] = ['home', 'services', 'projects', 'pricing', 'about', 'reviews', 'contact'];
+      if (validPages.includes(hash as PageRoute)) {
+        setCurrentPage(hash as PageRoute);
+      }
+    };
+
+    handleHashChange();
+    window.addEventListener('hashchange', handleHashChange);
+    return () => window.removeEventListener('hashchange', handleHashChange);
+  }, []);
+
+  const handleNavigate = (page: PageRoute) => {
+    setCurrentPage(page);
+    window.location.hash = `#/${page}`;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   const handleOpenBooking = (service?: PlumbingService | null) => {
     setSelectedServiceForBooking(service || null);
@@ -79,11 +105,6 @@ export default function App() {
     setBookingModalOpen(true);
   };
 
-  const handleScrollToEstimator = () => {
-    const el = document.getElementById('pricing-estimator');
-    if (el) el.scrollIntoView({ behavior: 'smooth' });
-  };
-
   const handleOpenVideo = (testimonial: Testimonial) => {
     setActiveTestimonial(testimonial);
     setVideoModalOpen(true);
@@ -98,10 +119,10 @@ export default function App() {
     setSelectedServiceForBooking({
       id: 'custom',
       title: serviceTitle,
-      description: 'Scheduled from customer showcase',
-      features: ['Upfront fixed quote guaranteed'],
-      startingPrice: 'Diagnostic Included',
-      estimatedTime: 'Prompt Arrival',
+      description: 'Requested from project breakdown modal.',
+      features: ['Priority dispatch', 'Certified master plumber'],
+      startingPrice: 'Quote on inspect',
+      estimatedTime: '1-3 hrs',
       iconName: 'Wrench',
     });
     setBookingInitialData(null);
@@ -110,73 +131,87 @@ export default function App() {
 
   return (
     <ToastProvider>
-      <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col selection:bg-[#10B981]/30 selection:text-slate-950">
-        {/* Sticky Glass Navbar with Client Portal */}
+      <div className="min-h-screen bg-[#07090d] text-slate-100 flex flex-col font-sans selection:bg-[#10B981] selection:text-black">
+        {/* Persistent Multi-Page Navigation Bar */}
         <Navbar
+          currentPage={currentPage}
+          onNavigate={handleNavigate}
           onOpenBooking={() => handleOpenBooking()}
-          onOpenAbout={() => setAboutModalOpen(true)}
-          onOpenEstimator={handleScrollToEstimator}
           onOpenClientPortal={() => setClientPortalOpen(true)}
           currentUser={currentUser}
         />
 
-        {/* Main Landing Page Flow */}
-        <main className="flex-1">
-          {/* Section 1: Hero */}
-          <Hero
-            onOpenBooking={() => handleOpenBooking()}
-            onOpenContact={() => handleOpenBooking()}
-          />
+        {/* Dynamic Multi-Page Router View */}
+        <main className="flex-grow">
+          {currentPage === 'home' && (
+            <HomePage
+              onOpenBooking={handleOpenBooking}
+              onOpenEmergencyBooking={handleOpenEmergencyBooking}
+              onLockRate={handleLockRate}
+              onScrollToEstimator={() => handleNavigate('pricing')}
+              onOpenVideo={handleOpenVideo}
+              onOpenProject={handleOpenProject}
+              onOpenAboutModal={() => handleNavigate('about')}
+              onNavigate={handleNavigate}
+            />
+          )}
 
-          {/* Section 2: Why Choose Us */}
-          <WhyChooseUs
-            onOpenAboutModal={() => setAboutModalOpen(true)}
-            onOpenBooking={() => handleOpenBooking()}
-          />
+          {currentPage === 'services' && (
+            <ServicesPage
+              onOpenBooking={handleOpenBooking}
+              onNavigate={handleNavigate}
+            />
+          )}
 
-          {/* Section 3: Precision Plumbing Services */}
-          <ServicesSection
-            onSelectService={(service) => handleOpenBooking(service)}
-            onOpenBooking={() => handleOpenBooking()}
-            onScrollToEstimator={handleScrollToEstimator}
-          />
+          {currentPage === 'projects' && (
+            <ProjectsPage
+              onOpenProjectModal={handleOpenProject}
+              onOpenBooking={() => handleOpenBooking()}
+            />
+          )}
 
-          {/* Section 4: Recent Projects */}
-          <RecentProjects
-            onSelectProject={(project) => handleOpenProject(project)}
-          />
+          {currentPage === 'pricing' && (
+            <PricingPage
+              onLockRate={handleLockRate}
+              onOpenBooking={() => handleOpenBooking()}
+            />
+          )}
 
-          {/* Section 5: Transparent Instant Estimator Engine */}
-          <InstantEstimator
-            onOpenBooking={() => handleOpenBooking()}
-            onLockRate={handleLockRate}
-          />
+          {currentPage === 'about' && (
+            <AboutPage
+              onOpenBooking={() => handleOpenBooking()}
+            />
+          )}
 
-          {/* Section 6: Testimonials */}
-          <TestimonialsSection
-            onOpenVideoModal={(testimonial) => handleOpenVideo(testimonial)}
-          />
+          {currentPage === 'reviews' && (
+            <ReviewsFaqPage
+              onOpenVideoModal={handleOpenVideo}
+              onOpenBooking={() => handleOpenBooking()}
+            />
+          )}
 
-          {/* Section 7: 24/7 Emergency Dispatch Banner */}
-          <EmergencyBanner
-            onOpenBooking={() => handleOpenBooking()}
-            onOpenEmergencyBooking={handleOpenEmergencyBooking}
-          />
+          {currentPage === 'contact' && (
+            <ContactPage
+              onOpenBooking={() => handleOpenBooking()}
+              onOpenEmergencyBooking={handleOpenEmergencyBooking}
+            />
+          )}
 
-          {/* Section 8: Frequently Asked Questions */}
-          <FaqSection onOpenBooking={() => handleOpenBooking()} />
+          {/* Lead Generation & Seasonal Preventative Maintenance Subscription */}
+          <NewsletterSubscription onOpenBooking={() => handleOpenBooking()} />
         </main>
 
-        {/* Footer */}
+        {/* Multi-Page Footer */}
         <Footer
           onOpenBooking={() => handleOpenBooking()}
-          onOpenEstimator={handleScrollToEstimator}
-          onOpenAbout={() => setAboutModalOpen(true)}
+          onOpenEstimator={() => handleNavigate('pricing')}
+          onOpenAbout={() => handleNavigate('about')}
           onOpenLegal={(type) => setLegalModalType(type)}
           onOpenClientPortal={() => setClientPortalOpen(true)}
+          onNavigate={handleNavigate}
         />
 
-        {/* Interactive Modals */}
+        {/* Interactive Modals (Globally accessible on all pages) */}
         <BookingModal
           isOpen={bookingModalOpen}
           onClose={() => {

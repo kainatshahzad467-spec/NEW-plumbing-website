@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { FAQS } from '../data/content';
-import { ChevronDown, HelpCircle, PhoneCall, Search, Sparkles, MessageSquare, X } from 'lucide-react';
+import { ChevronDown, HelpCircle, Search, Sparkles, X } from 'lucide-react';
 
 interface FaqSectionProps {
   onOpenBooking?: () => void;
@@ -109,43 +109,6 @@ export const FaqSection: React.FC<FaqSectionProps> = ({ onOpenBooking }) => {
             </button>
           </div>
         )}
-
-        {/* High-Contrast Commercial Inquiry Callout Card */}
-        <div className="mt-12 p-6 sm:p-8 rounded-3xl bg-slate-950 text-white shadow-xl border border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-6">
-          <div className="space-y-1 text-center sm:text-left">
-            <div className="flex items-center justify-center sm:justify-start gap-2">
-              <span className="text-xs font-bold uppercase tracking-wider text-emerald-400">
-                Custom Architectural Consultations
-              </span>
-            </div>
-            <h4 className="text-lg sm:text-xl font-bold text-white tracking-tight">
-              Have a complex commercial or industrial inquiry?
-            </h4>
-            <p className="text-xs sm:text-sm text-slate-300 font-light leading-relaxed">
-              Our engineering dispatchers can review CAD drawings, blueprints, and schedule backflow testing.
-            </p>
-          </div>
-
-          <div className="flex items-center gap-3 shrink-0">
-            {onOpenBooking && (
-              <button
-                type="button"
-                onClick={onOpenBooking}
-                className="inline-flex items-center gap-2 px-5 py-3 rounded-full bg-white/10 hover:bg-white/20 text-white border border-white/15 font-semibold text-xs sm:text-sm transition-all"
-              >
-                <MessageSquare className="w-4 h-4 text-emerald-400" />
-                <span>Submit Specs</span>
-              </button>
-            )}
-            <a
-              href="tel:18004597473"
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-[#10B981] hover:bg-[#0ea371] text-slate-950 font-bold text-xs sm:text-sm transition-all shadow-lg active:scale-95"
-            >
-              <PhoneCall className="w-4 h-4" />
-              <span>(800) 459-PIPE</span>
-            </a>
-          </div>
-        </div>
       </div>
     </section>
   );
