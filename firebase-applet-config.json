@@ -1,12 +1,10 @@
 {
-  "projectId": "fluted-dominion-vlxdt",
-  "appId": "1:46793844734:web:1fc0e47ec2cf74ec4802af",
-  "apiKey": "AIzaSyAz5GLW2NCBlEO8xEVQQ8PKS5_k5IMq984",
-  "authDomain": "fluted-dominion-vlxdt.firebaseapp.com",
-  "firestoreDatabaseId": "ai-studio-aquoraplumbingso-88b35288-9039-4271-8a87-4d0d38cd5c9d",
-  "storageBucket": "fluted-dominion-vlxdt.firebasestorage.app",
-  "messagingSenderId": "46793844734",
-  "measurementId": "",
-  "oAuthClientId": "46793844734-nfpis86qc9d5vla9em9u3t7bhdorko1s.apps.googleusercontent.com",
-  "recaptchaSiteKey": ""
+  "projectId": "aquora-plumbing",
+  "appId": "1:870633169470:web:092ddef37727f89616a76f",
+  "apiKey": "AIzaSyCgH07j3FJttk90fuNYvHEOJHcp4NrcEjY",
+  "authDomain": "aquora-plumbing.firebaseapp.com",
+  "firestoreDatabaseId": "(default)",
+  "storageBucket": "aquora-plumbing.firebasestorage.app",
+  "messagingSenderId": "870633169470",
+  "measurementId": "G-KRKH9FKCWR"
 }

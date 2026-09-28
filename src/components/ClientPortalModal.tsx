@@ -23,6 +23,7 @@ import {
   logInWithEmail,
   signUpWithEmail,
   logOut,
+  resetPassword,
   subscribeToUserRequests,
   updateServiceRequestStatus,
   isSiteOwner,
@@ -49,6 +50,8 @@ export const ClientPortalModal: React.FC<ClientPortalModalProps> = ({
   const [displayName, setDisplayName] = useState('');
   const [loading, setLoading] = useState(false);
   const [authError, setAuthError] = useState<string | null>(null);
+  const [resetSent, setResetSent] = useState(false);
+  const [resetLoading, setResetLoading] = useState(false);
 
   // User's service requests state
   const [requests, setRequests] = useState<ServiceRequestDoc[]>([]);
@@ -88,6 +91,10 @@ export const ClientPortalModal: React.FC<ClientPortalModalProps> = ({
       const error = err as { message?: string; code?: string };
       if (error.code === 'auth/popup-closed-by-user') {
         setAuthError('Sign-in cancelled. Please try again.');
+      } else if (error.code === 'auth/unauthorized-domain') {
+        setAuthError('This domain is not yet authorized in Firebase Console > Authentication > Settings > Authorized domains. Please add your Vercel domain.');
+      } else if (error.code === 'auth/popup-blocked') {
+        setAuthError('Sign-in popup was blocked by your browser. Please allow popups for this site.');
       } else {
         setAuthError(error.message || 'Failed to authenticate with Google. Please try again.');
       }
@@ -116,11 +123,39 @@ export const ClientPortalModal: React.FC<ClientPortalModalProps> = ({
         setAuthError('Invalid email or password. Please verify your credentials.');
       } else if (error.code === 'auth/email-already-in-use') {
         setAuthError('An account with this email already exists. Try signing in.');
+      } else if (error.code === 'auth/operation-not-allowed') {
+        setAuthError('Email/Password sign-in is currently disabled in your Firebase project. Please enable "Email/Password" in Firebase Console > Authentication > Sign-in method, or use "Continue with Google".');
+      } else if (error.code === 'auth/weak-password') {
+        setAuthError('Password is too weak. Please use at least 6 characters.');
+      } else if (error.code === 'auth/network-request-failed') {
+        setAuthError('Network error. Please check your internet connection.');
       } else {
         setAuthError(error.message || 'Authentication error. Please check your details.');
       }
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleResetPassword = async () => {
+    if (!email || !email.includes('@')) {
+      setAuthError('Please enter your email address above to receive a password reset link.');
+      return;
+    }
+    setResetLoading(true);
+    setAuthError(null);
+    try {
+      await resetPassword(email.trim());
+      setResetSent(true);
+    } catch (err: unknown) {
+      const error = err as { message?: string; code?: string };
+      if (error.code === 'auth/user-not-found') {
+        setAuthError('No account found with this email. Please check your spelling or create an account.');
+      } else {
+        setAuthError(error.message || 'Could not send reset link. Please check the email entered.');
+      }
+    } finally {
+      setResetLoading(false);
     }
   };
 
@@ -513,9 +548,21 @@ export const ClientPortalModal: React.FC<ClientPortalModalProps> = ({
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-slate-300 mb-1">
-                  Password
-                </label>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="block text-xs font-medium text-slate-300">
+                    Password
+                  </label>
+                  {authMode === 'signin' && (
+                    <button
+                      type="button"
+                      onClick={handleResetPassword}
+                      disabled={resetLoading}
+                      className="text-[11px] text-emerald-400 hover:text-emerald-300 transition-colors"
+                    >
+                      {resetLoading ? 'Sending...' : 'Forgot password?'}
+                    </button>
+                  )}
+                </div>
                 <div className="relative">
                   <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
                   <input
@@ -528,6 +575,13 @@ export const ClientPortalModal: React.FC<ClientPortalModalProps> = ({
                   />
                 </div>
               </div>
+
+              {resetSent && (
+                <div className="p-3 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-xs flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-400" />
+                  <span>Password reset email sent to <strong>{email}</strong>! Please check your inbox.</span>
+                </div>
+              )}
 
               <button
                 type="submit"

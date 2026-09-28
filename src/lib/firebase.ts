@@ -8,6 +8,7 @@ import {
   updateProfile,
   signOut,
   onAuthStateChanged,
+  sendPasswordResetEmail,
   User,
 } from 'firebase/auth';
 import {
@@ -116,6 +117,13 @@ export async function signUpWithEmail(email: string, pass: string, name?: string
 export async function logInWithEmail(email: string, pass: string) {
   const userCredential = await signInWithEmailAndPassword(auth, email, pass);
   return userCredential.user;
+}
+
+/**
+ * Send Password Reset Email
+ */
+export async function resetPassword(email: string) {
+  return await sendPasswordResetEmail(auth, email);
 }
 
 /**
