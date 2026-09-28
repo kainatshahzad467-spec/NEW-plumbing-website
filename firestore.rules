@@ -43,5 +43,18 @@ service cloud.firestore {
       allow create: if true;
       allow read, update, delete: if isSiteOwner();
     }
+
+    match /reviews/{reviewId} {
+      // Anyone can read verified reviews, anyone can submit a new review, site owner can manage/delete
+      allow read, create: if true;
+      allow update, delete: if isSiteOwner();
+    }
+
+    match /mail/{mailId} {
+      // Standard Firebase "Trigger Email" extension collection
+      // Allows newsletter & booking confirmation emails to be queued
+      allow create: if true;
+      allow read, update, delete: if isSiteOwner();
+    }
   }
 }

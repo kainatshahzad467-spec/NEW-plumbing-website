@@ -37,9 +37,9 @@ export const NewsletterSubscription: React.FC<NewsletterSubscriptionProps> = ({ 
 
       addToast({
         type: 'success',
-        title: 'Successfully Subscribed!',
-        message: 'You have been registered for plumbing maintenance tips, freeze warnings & seasonal promotions.',
-        duration: 6000,
+        title: 'Confirmation Email Dispatched!',
+        message: `Welcome email & $50 promo code queued for ${cleanEmail}. Please check your inbox / spam folder.`,
+        duration: 7000,
       });
     } catch (err: unknown) {
       console.warn('Newsletter subscription error (fallback active):', err);

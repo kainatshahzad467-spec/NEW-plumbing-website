@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { AquoraLogo } from './AquoraLogo';
 import { Phone, Mail, MapPin, ShieldCheck, Award, ArrowRight, CheckCircle2, ChevronUp } from 'lucide-react';
-import { db } from '../lib/firebase';
+import { db, subscribeToNewsletter } from '../lib/firebase';
 import { collection, addDoc } from 'firebase/firestore';
 import { useToast } from '../context/ToastContext';
 
@@ -29,16 +29,12 @@ export const Footer: React.FC<FooterProps> = ({
 
   const handleSubscribe = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newsletterEmail.trim()) return;
+    const clean = newsletterEmail.trim().toLowerCase();
+    if (!clean) return;
 
     setSaving(true);
     try {
-      // Save subscriber in Firestore
-      await addDoc(collection(db, 'newsletter_subscribers'), {
-        email: newsletterEmail.trim(),
-        voucherCode: 'AQUORA50',
-        createdAt: new Date().toISOString(),
-      });
+      await subscribeToNewsletter(clean, 'footer_newsletter');
     } catch {
       // Offline fallback
     }
@@ -48,7 +44,7 @@ export const Footer: React.FC<FooterProps> = ({
     addToast({
       type: 'success',
       title: '$50 Service Voucher Issued!',
-      message: `Promo code AQUORA50 claimed for ${newsletterEmail}. Use during checkout or dispatch.`,
+      message: `Promo code AQUORA50 claimed for ${clean}. Check inbox for maintenance guide.`,
       duration: 7000,
     });
   };

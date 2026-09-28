@@ -15,8 +15,11 @@ import {
   FileText,
   MapPin,
   RefreshCw,
+  Settings2,
+  Send,
 } from 'lucide-react';
 import { User } from 'firebase/auth';
+import { getStoredEmailJSKeys, saveEmailJSKeys, sendWelcomeEmailViaEmailJS } from '../lib/emailService';
 import {
   auth,
   signInWithGoogle,
@@ -56,6 +59,14 @@ export const ClientPortalModal: React.FC<ClientPortalModalProps> = ({
   // User's service requests state
   const [requests, setRequests] = useState<ServiceRequestDoc[]>([]);
   const [loadingRequests, setLoadingRequests] = useState(false);
+
+  // EmailJS Direct Delivery Keys State (for 100% Free Emailing)
+  const [showEmailSettings, setShowEmailSettings] = useState(false);
+  const [emailKeys, setEmailKeys] = useState(getStoredEmailJSKeys());
+  const [emailConfigSaved, setEmailConfigSaved] = useState(false);
+  const [testEmailAddress, setTestEmailAddress] = useState('');
+  const [testSending, setTestSending] = useState(false);
+  const [testResult, setTestResult] = useState<{ success: boolean; message: string } | null>(null);
 
   // Subscribe to requests when user is logged in
   useEffect(() => {
@@ -239,23 +250,155 @@ export const ClientPortalModal: React.FC<ClientPortalModalProps> = ({
 
             {/* Bookings & Requests Section */}
             <div>
-              {/* Cloud Function Status Callout for Site Owner */}
+              {/* Cloud Function Status & Free EmailJS Settings for Site Owner */}
               {isSiteOwner(currentUser) && (
-                <div className="mb-4 p-3.5 rounded-2xl bg-emerald-500/10 border border-emerald-500/25 flex items-start gap-3 text-xs">
-                  <span className="p-1 rounded-full bg-emerald-500/20 text-emerald-400 shrink-0 mt-0.5">
-                    <CheckCircle2 className="w-4 h-4" />
-                  </span>
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-2">
-                      <strong className="text-white font-semibold">Firebase Cloud Function Email Trigger Active</strong>
-                      <span className="font-mono text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300">
-                        onDocumentCreated
+                <div className="mb-5 space-y-3">
+                  <div className="p-3.5 rounded-2xl bg-emerald-500/10 border border-emerald-500/25 flex items-start justify-between gap-3 text-xs">
+                    <div className="flex items-start gap-3">
+                      <span className="p-1 rounded-full bg-emerald-500/20 text-emerald-400 shrink-0 mt-0.5">
+                        <CheckCircle2 className="w-4 h-4" />
                       </span>
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-2">
+                          <strong className="text-white font-semibold">100% Free Client Emailing System (EmailJS)</strong>
+                          <span className="font-mono text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300">
+                            Zero Blaze / $0 Card Required
+                          </span>
+                        </div>
+                        <p className="text-slate-300 font-light leading-relaxed">
+                          Deliver instant welcome emails and $50 promo codes directly to newsletter subscribers without paying or upgrading Firebase.
+                        </p>
+                      </div>
                     </div>
-                    <p className="text-slate-300 font-light leading-relaxed">
-                      Every new document created in collection <span className="font-mono text-emerald-300 font-medium">service_requests</span> triggers an automated dispatch notification email to site owner (<span className="text-white font-medium">{SITE_OWNER_EMAIL}</span>).
-                    </p>
+
+                    <button
+                      type="button"
+                      onClick={() => setShowEmailSettings(!showEmailSettings)}
+                      className="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-white font-medium text-xs flex items-center gap-1.5 transition-colors shrink-0 cursor-pointer"
+                    >
+                      <Settings2 className="w-3.5 h-3.5 text-emerald-400" />
+                      <span>{showEmailSettings ? 'Hide Setup' : 'Configure Free Email'}</span>
+                    </button>
                   </div>
+
+                  {/* Expandable EmailJS Configuration Box */}
+                  {showEmailSettings && (
+                    <div className="p-5 rounded-2xl bg-[#090b0f] border border-emerald-500/30 space-y-4 animate-in fade-in duration-200">
+                      <div className="flex items-center justify-between pb-2 border-b border-white/10">
+                        <div>
+                          <h5 className="text-sm font-bold text-white">EmailJS Free Setup (200 Free Emails / Month)</h5>
+                          <p className="text-[11px] text-slate-400">
+                            Create free account at <a href="https://www.emailjs.com" target="_blank" rel="noreferrer" className="text-emerald-400 underline font-medium">emailjs.com</a>, add your Gmail service, and paste your 3 keys below:
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <div>
+                          <label className="block text-[11px] font-semibold text-slate-300 mb-1">
+                            Service ID
+                          </label>
+                          <input
+                            type="text"
+                            placeholder="e.g. service_xxxxxx"
+                            value={emailKeys.serviceId}
+                            onChange={(e) => setEmailKeys({ ...emailKeys, serviceId: e.target.value.trim() })}
+                            className="w-full px-3 py-2 rounded-xl bg-white/5 border border-white/15 text-white text-xs placeholder-slate-500 focus:outline-none focus:border-emerald-400 font-mono"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-[11px] font-semibold text-slate-300 mb-1">
+                            Template ID
+                          </label>
+                          <input
+                            type="text"
+                            placeholder="e.g. template_xxxxxx"
+                            value={emailKeys.templateId}
+                            onChange={(e) => setEmailKeys({ ...emailKeys, templateId: e.target.value.trim() })}
+                            className="w-full px-3 py-2 rounded-xl bg-white/5 border border-white/15 text-white text-xs placeholder-slate-500 focus:outline-none focus:border-emerald-400 font-mono"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-[11px] font-semibold text-slate-300 mb-1">
+                            Public Key (User ID)
+                          </label>
+                          <input
+                            type="text"
+                            placeholder="e.g. user_xxxxxx or key_xxxx"
+                            value={emailKeys.publicKey}
+                            onChange={(e) => setEmailKeys({ ...emailKeys, publicKey: e.target.value.trim() })}
+                            className="w-full px-3 py-2 rounded-xl bg-white/5 border border-white/15 text-white text-xs placeholder-slate-500 focus:outline-none focus:border-emerald-400 font-mono"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            saveEmailJSKeys(emailKeys);
+                            setEmailConfigSaved(true);
+                            setTimeout(() => setEmailConfigSaved(false), 3000);
+                          }}
+                          className="px-4 py-2 rounded-full bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold text-xs tracking-tight transition-all active:scale-95 cursor-pointer"
+                        >
+                          {emailConfigSaved ? '✓ Settings Saved!' : 'Save EmailJS Keys'}
+                        </button>
+
+                        {/* Test Email Section */}
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="email"
+                            placeholder="Test recipient email..."
+                            value={testEmailAddress}
+                            onChange={(e) => setTestEmailAddress(e.target.value)}
+                            className="px-3 py-1.5 rounded-full bg-white/5 border border-white/15 text-white text-xs placeholder-slate-500 focus:outline-none focus:border-emerald-400 w-48"
+                          />
+                          <button
+                            type="button"
+                            disabled={testSending || !testEmailAddress.trim()}
+                            onClick={async () => {
+                              saveEmailJSKeys(emailKeys);
+                              setTestSending(true);
+                              setTestResult(null);
+                              const res = await sendWelcomeEmailViaEmailJS({
+                                toEmail: testEmailAddress.trim(),
+                                promoCode: 'AQUORA50',
+                              });
+                              setTestResult({
+                                success: res.success,
+                                message: res.message || (res.success ? 'Email sent successfully!' : 'Delivery failed'),
+                              });
+                              setTestSending(false);
+                            }}
+                            className="px-3 py-1.5 rounded-full bg-white/15 hover:bg-white/25 text-white font-medium text-xs flex items-center gap-1.5 disabled:opacity-50 cursor-pointer"
+                          >
+                            <Send className="w-3 h-3 text-emerald-400" />
+                            <span>{testSending ? 'Sending...' : 'Send Test Mail'}</span>
+                          </button>
+                        </div>
+                      </div>
+
+                      {testResult && (
+                        <div
+                          className={`p-3 rounded-xl text-xs flex items-center gap-2 ${
+                            testResult.success
+                              ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
+                              : 'bg-red-500/20 text-red-300 border border-red-500/30'
+                          }`}
+                        >
+                          {testResult.success ? (
+                            <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                          ) : (
+                            <AlertCircle className="w-4 h-4 text-red-400 shrink-0" />
+                          )}
+                          <span>{testResult.message}</span>
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
               )}
 
