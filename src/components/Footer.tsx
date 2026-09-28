@@ -59,7 +59,7 @@ export const Footer: React.FC<FooterProps> = ({
     <footer className="bg-[#08090c] text-white pt-16 pb-12 border-t border-white/10 relative">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Main Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10 pb-12 border-b border-white/10">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 pb-12 border-b border-white/10">
           {/* Col 1 & 2: Brand & Emergency Callout */}
           <div className="lg:col-span-2 space-y-4">
             <AquoraLogo size="lg" theme="light" />
@@ -99,46 +99,7 @@ export const Footer: React.FC<FooterProps> = ({
             </div>
           </div>
 
-          {/* Col 3: Services Links */}
-          <div className="space-y-3">
-            <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400">
-              Precision Services
-            </h4>
-            <ul className="space-y-2 text-sm text-slate-300 font-normal">
-              <li>
-                <a href="#services" className="hover:text-white transition-colors">
-                  Emergency Leak Repair
-                </a>
-              </li>
-              <li>
-                <a href="#services" className="hover:text-white transition-colors">
-                  Hydro-Jet Drain Cleaning
-                </a>
-              </li>
-              <li>
-                <a href="#services" className="hover:text-white transition-colors">
-                  Trenchless CIPP Relining
-                </a>
-              </li>
-              <li>
-                <a href="#services" className="hover:text-white transition-colors">
-                  Tankless Water Heaters
-                </a>
-              </li>
-              <li>
-                <a href="#services" className="hover:text-white transition-colors">
-                  Commercial Grease Traps
-                </a>
-              </li>
-              <li>
-                <a href="#services" className="hover:text-white transition-colors">
-                  Backflow Certification
-                </a>
-              </li>
-            </ul>
-          </div>
-
-          {/* Col 4: Company & Trust */}
+          {/* Navigation Links */}
           <div className="space-y-3">
             <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400">
               Navigation
